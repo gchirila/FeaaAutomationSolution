@@ -97,137 +97,96 @@ Clarification :)
 Locators attributes strategy: 
 
 ID – unique, safest, fastest locator option and should always be your first choice 
-
-//input[@id = "session_email"] - “session_password" 
- 
+	
+	//input[@id = "session_email"] - “session_password" 
+	 
 
 Name - it also has same speed as of like ID 
-
-//input[@name = "session[email]"] -  “session[password]” 
+	
+	//input[@name = "session[email]"] -  “session[password]” 
  
 
 Class Name (simple / composed) - Fast, Consistent as it doesn’t change much 
-
-//div[@class = "row"]//a - (Sign up button) 
+	
+	//div[@class = "row"]//a - (Sign up button) 
  
 
 Link Text (a.href) 
-
-//a[contains (text(), 'Sign up')] 
+	
+	//a[contains (text(), 'Sign up')] 
  
 
 CSS Selector - slower and more resource consuming option but it gives more flexibility 
-
-input[data-test='email'] 
-
-input[type='password'] 
-
-tagname[attribute='attributeValue'] 
+	
+	input[data-test='email'] 
+	
+	input[type='password'] 
+	
+	tagname[attribute='attributeValue'] 
  
 
 Xpath - slowest and the most “expensive” 
-
+	
 Most flexible in order to build reliable web element locators 
 
 Very slow locator since in order to locate the element it needs to traverse the whole DOM of the page which is a time consuming operation 
 
- 
-
 Absolute XPath (direct way, select the element from the root node) / 
 
 Relative XPath (anywhere at the webpage) // 
+	
+	//input[@value='Sign in'] 
 
-//input[@value='Sign in'] 
-
- 
-
-//tagname[@attribute='attributeValue'] 
-
-(input, button, label) | (id, name, class name) 
-
- 
-
- 
-
-//input[starts-with(@type, 'email')] 
-
- 
-
-//input[@type = "email" and @name = "email"] 
-
-//input[@type = "email" or @name = "email"] 
-
- 
+	//tagname[@attribute='attributeValue'] 
+	
+	(input, button, label) | (id, name, class name) 
+	
+	//input[starts-with(@type, 'email')] 
+	
+	//input[@type = "email" and @name = "email"] 
+	
+	//input[@type = "email" or @name = "email"] 
 
 Page Break
  
 
 XPath methods (Add Address): 
 
- 
-
 Following - all following elements of the current node  
 
- 
-
-//div[@id='clearance']//following::div 
-
-//div[@class='container']//following::div 
-
- 
+	//div[@id='clearance']//following::div 
+	
+	//div[@class='container']//following::div 
 
 Ancestor - all ancestors element (grandparent, parent, etc.) on the current node 
+	
+	//input[@type="email"]/ancestor::form 
+	//input[@type="submit"]/ancestor::form 
 
- 
+Child - all children elements of the current node
 
-//input[@type="email"]/ancestor::form 
-//input[@type="submit"]/ancestor::form 
-
- 
-
-Child - all children elements of the current node 
-
- 
-
-//div[@id='clearance']//child::div 
-
- 
+	//div[@id='clearance']//child::div 
 
 Preceding - all nodes that come before the current node 
 
- 
-
-//input[@value='Sign in']//preceding::input 
-
- 
+	//input[@value='Sign in']//preceding::input 
+	
 
 Following-sibling - following siblings of the context node 
 
- 
-
-//div[@id='clearance']//following-sibling::input 
-
- 
+	//div[@id='clearance']//following-sibling::input 
 
 Parent - parent of the current node 
 
- 
-
-//input[@type='submit']/parent::div 
-
- 
+	//input[@type='submit']/parent::div 
 
 Descendant - descendants of the current node 
 
- 
+	//div[@id='clearance']//descendant::div
+	
+	//element.name[@attribute.name=“attribute.value“]/method::element.name 
 
-//div[@id='clearance']//descendant::div 
-
- 
-
-//element.name[@attribute.name=“attribute.value“]/method::element.name 
-
-(following-sibling) 
+	(following-sibling) 
 
 Try to use these element’s in order if possible in order to consistently have good tests which will reduce brittleness and increase maintainability.. 
 
