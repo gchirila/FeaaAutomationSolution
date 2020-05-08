@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using System.CodeDom;
+using OpenQA.Selenium;
 
 namespace AutomationSolution.PageObjects
 {
@@ -11,26 +12,21 @@ namespace AutomationSolution.PageObjects
             driver = browser;
         }
 
-        private IWebElement TxtEmail()
-        {
-            return driver.FindElement(By.CssSelector("input[data-test='email']"));
-        }
+        private By email = By.CssSelector("input[data-test='email']");
+        private IWebElement TxtEmail => driver.FindElement(email);
 
-        private IWebElement TxtPassword()
-        {
-            return driver.FindElement(By.CssSelector("input[type='password']"));
-        }
+        private By password = By.CssSelector("input[type='password']");
+        private IWebElement TxtPassword => driver.FindElement(password);
 
-        private IWebElement BtnLogin()
-        {
-            return driver.FindElement(By.XPath("//input[@value='Sign in']"));
-        }
+        private By login => By.XPath("//input[@value='Sign in']");
+        private IWebElement BtnLogin => driver.FindElement(login);
 
-        public void LoginApplication(string email, string password)
+        public HomePage LoginApplication(string email, string password)
         {
-            TxtEmail().SendKeys(email);
-            TxtPassword().SendKeys(password);
-            BtnLogin().Click();
+            TxtEmail.SendKeys(email);
+            TxtPassword.SendKeys(password);
+            BtnLogin.Click();
+            return new HomePage(driver);
         }
     }
 }
