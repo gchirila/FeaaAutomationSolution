@@ -94,29 +94,29 @@ Clarification :)
 
 **Scope:** This session scope was to use locators strategy, MSTest methods to initialize/clean up our test data and to get rid of our duplicate code
 
-**Locators attributes strategy**
+Locators attributes strategy: 
 
-**1. ID** – unique, safest, fastest locator option and should always be your first choice 
+ID – unique, safest, fastest locator option and should always be your first choice 
 	
 	//input[@id = "session_email"] - “session_password" 
 	 
 
-**2. Name** - it also has same speed as of like ID 
+Name - it also has same speed as of like ID 
 	
 	//input[@name = "session[email]"] -  “session[password]” 
  
 
-**3. Class Name** (simple / composed) - Fast, Consistent as it doesn’t change much 
+Class Name (simple / composed) - Fast, Consistent as it doesn’t change much 
 	
 	//div[@class = "row"]//a - (Sign up button) 
  
 
-**4. Link Text** (a.href) 
+Link Text (a.href) 
 	
 	//a[contains (text(), 'Sign up')] 
  
 
-**5. CSS Selector** - slower and more resource consuming option but it gives more flexibility 
+CSS Selector - slower and more resource consuming option but it gives more flexibility 
 	
 	input[data-test='email'] 
 	
@@ -125,60 +125,74 @@ Clarification :)
 	tagname[attribute='attributeValue'] 
  
 
-**6. Xpath** - slowest and the most “expensive” 
+Xpath - slowest and the most “expensive” 
 	
-- Most flexible in order to build reliable web element locators 
-- Very slow locator since in order to locate the element it needs to traverse the whole DOM of the page which is a time consuming operation 
-- Absolute XPath (direct way, select the element from the root node) / 
-- Relative XPath (anywhere at the webpage) // 
+Most flexible in order to build reliable web element locators 
+
+Very slow locator since in order to locate the element it needs to traverse the whole DOM of the page which is a time consuming operation 
+
+Absolute XPath (direct way, select the element from the root node) / 
+
+Relative XPath (anywhere at the webpage) // 
 	
 	//input[@value='Sign in'] 
 
-**tagname[@attribute='attributeValue']**
+	//tagname[@attribute='attributeValue'] 
+	
+	(input, button, label) | (id, name, class name) 
+	
+	//input[starts-with(@type, 'email')] 
+	
+	//input[@type = "email" and @name = "email"] 
+	
+	//input[@type = "email" or @name = "email"] 
 
-**XPath methods**
+Page Break
+ 
 
-**1. Following** - all following elements of the current node  
+XPath methods (Add Address): 
+
+Following - all following elements of the current node  
 
 	//div[@id='clearance']//following::div 
 	
 	//div[@class='container']//following::div 
 
-**2. Ancestor** - all ancestors element (grandparent, parent, etc.) on the current node 
+Ancestor - all ancestors element (grandparent, parent, etc.) on the current node 
 	
 	//input[@type="email"]/ancestor::form 
 	//input[@type="submit"]/ancestor::form 
 
-**3. Child** - all children elements of the current node
+Child - all children elements of the current node
 
 	//div[@id='clearance']//child::div 
 
-**4. Preceding** - all nodes that come before the current node 
+Preceding - all nodes that come before the current node 
 
 	//input[@value='Sign in']//preceding::input 
 	
 
-**5. Following-sibling** - following siblings of the context node 
+Following-sibling - following siblings of the context node 
 
 	//div[@id='clearance']//following-sibling::input 
 
-**6. Parent** - parent of the current node 
+Parent - parent of the current node 
 
 	//input[@type='submit']/parent::div 
 
-**7. Descendant** - descendants of the current node 
+Descendant - descendants of the current node 
 
 	//div[@id='clearance']//descendant::div
 	
-**//element.name[@attribute.name=“attribute.value“]/method::element.name**
-						(following-sibling) 
+	//element.name[@attribute.name=“attribute.value“]/method::element.name 
+
+	(following-sibling) 
 
 Try to use these element’s in order if possible in order to consistently have good tests which will reduce brittleness and increase maintainability.. 
+
 XPath and CSS Selectors are extremely powerful but are normally not the best option to use for both speed and brittleness reasons. 
 
-
 One of a test case component is the prerequisite: conditions that must be met before the test case can be run.
-
 Our code test login scenarios and we need to see what are the prerequisites.
 We have identified the following steps that need to be execute before running the test:
 
@@ -391,3 +405,155 @@ At this point, we need to update our tests:
             driver.Quit();
         }
     }
+	
+```
+
+We still have work to do. But chill out and see you at the next seminar.
+
+### **Session 4: Let's write an UI automation tests for adding a new address**
+
+**Scope:** This session scope was to create a unit test project for adding addresses and to keep the code clean
+
+In order to add a new address, we will need a write code for the next steps:
+1.	Open the browser
+2.	Maximize the page
+3.	Open the application URL
+4.	Click Sign in button (NavigateToLoginPage method)
+5.	Fill user email and password, then click Sign in button (LoginApplication method)
+6.	Navigate to addresses page
+7.	Navigate to add address page
+8.	Complete the form with mandatory fields and click Save button
+9.	Assert that the success message is shown
+
+
+At step 5, use login actions (fill user email and password, click Sign in button) that is in LoginPage.cs:
+
+```csharp
+    public void LoginApplication(string username, string password)
+    {
+        TxtUsername.SendKeys(username);
+        TxtPassword.SendKeys(password);
+        BtnLogin.Click();
+    }
+```
+
+In order to navigate to addresses page, we need to create a page object HomePage.cs that contains elements and method for this page:
+
+```csharp
+    public class HomePage
+    {
+        private IWebDriver driver;
+
+        public HomePage(IWebDriver browser)
+        {
+            driver = browser;
+        }
+
+
+
+        private By addresses = By.CssSelector("[data-test=addresses]");
+        private IWebElement BtnAddresses => driver.FindElement(addresses);
+
+        public AddressesPage NavigateToAddressesPage()
+        {
+            BtnAddresses.Click();
+            return new AddressesPage(driver);
+        }
+
+    }
+```
+
+Next step is to navigate to add address page. For this, we need another page object AddressesPage.cs which contains New Address button declaration and method to clicks on the element:
+
+```csharp
+    public class AddressesPage
+    {
+        private IWebDriver driver;
+
+        public AddressesPage(IWebDriver browser)
+        {
+            driver = browser;
+        }
+
+        private By newAddress = By.XPath("//a[@data-test='create']");
+        private IWebElement BtnNewAddress => driver.FindElement(newAddress);
+
+        public AddAddressPage NavigateToAddAddressPage()
+        {
+            BtnNewAddress.Click();
+            return new AddAddressPage(driver);
+        }
+    }
+```
+
+For step 8 (Complete the form with mandatory fields and click Save button), we will create a page object that contains the elements for the add address page: AddAdressPage.cs.
+We need to add the objects that we use in our script in this class: first name, last name, address, city, zip code, birthday and color inputs, state dropdown, country select, save button and create a method to add the address.
+Our add address page will look like this:
+
+```csharp
+    public class AddAdressPage
+    {
+        private IWebDriver driver;
+
+        public AddAdressPage(IWebDriver browser)
+        {
+            driver = browser;
+        }
+
+        private IWebElement TxtFirstName => driver.FindElement(By.Id("address_first_name"));
+
+        private IWebElement TxtLastName => driver.FindElement(By.Id("address_last_name"));
+
+        private IWebElement TxtAddress1 => driver.FindElement(By.Id("address_street_address"));
+
+        private IWebElement TxtCity => driver.FindElement(By.Id("address_city"));
+
+        private IWebElement DdlState => driver.FindElement(By.Id("address_state"));
+
+        private IWebElement TxtZipCode => driver.FindElement(By.Id("address_zip_code"));
+
+        private IList<IWebElement> LstCountry => driver.FindElements(By.CssSelector("input[type=radio]"));
+
+        private IWebElement TxtBirthday => driver.FindElement(By.Id("address_birthday"));
+
+        private IWebElement ClColor => driver.FindElement(By.Id("address_color"));
+
+        private IWebElement BtnSave => driver.FindElement(By.Name("commit"));
+
+        public void AddAddress()
+        {
+            TxtFirstName.SendKeys("test");
+            TxtLastName.SendKeys("test");
+            TxtAddress1.SendKeys("test");
+            TxtCity.SendKeys("test");
+            var selectState = new SelectElement(DdlState);
+            selectState.SelectByText("Hawaii");
+            TxtZipCode.SendKeys("test");
+            LstCountry[1].Click();
+
+            var js = (IJavaScriptExecutor) driver;
+            js.ExecuteScript("arguments[0].setAttribute('value', arguments[1])", ClColor, "#FF0000");
+            BtnSave.Click();
+            Thread.Sleep(2000);
+        }
+     }
+```
+Find Elements command takes in By object as the parameter and returns a list of web elements. It returns an empty list if there are no elements found using the given locator strategy and locator value. Below is the syntax of find elements command.
+	private IList<IWebElement> LstCountry => driver.FindElements(By.CssSelector("input[type=radio]"));
+	
+The 'Select' class in Selenium WebDriver is used for selecting and deselecting option in a dropdown. The objects of Select type can be initialized by passing the dropdown webElement as parameter to its constructor.
+	var selectState = new SelectElement(DdlState);
+    selectState.SelectByText("Hawaii");
+
+JavaScriptExecutor is an Interface that helps to execute JavaScript through Selenium Webdriver.
+
+Syntax:
+	var js = (IJavaScriptExecutor) driver; 
+	js.ExecuteScript(Script,Arguments);
+
+Script – This is the JavaScript that needs to execute.
+Arguments – It is the arguments to the script. It's optional.
+	var js = (IJavaScriptExecutor) driver;
+    js.ExecuteScript("arguments[0].setAttribute('value', arguments[1])", ClColor, "#FF0000");
+
+In order to finish the automated tests, we need to make an assertion.
