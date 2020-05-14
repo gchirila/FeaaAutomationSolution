@@ -134,8 +134,9 @@ Clarification :)
 	
 	//input[@value='Sign in'] 
 
-	**tagname[@attribute='attributeValue']**
-	(input, button, label) | (id, name, class name) 
+**tagname[@attribute='attributeValue']**
+(input, button, label) | (id, name, class name) 
+	
 	
 **XPath methods**
 
