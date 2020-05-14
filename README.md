@@ -546,13 +546,14 @@ The 'Select' class in Selenium WebDriver is used for selecting and deselecting o
     selectState.SelectByText("Hawaii");
 
 JavaScriptExecutor is an Interface that helps to execute JavaScript through Selenium Webdriver.
-
 Syntax:
+
 	var js = (IJavaScriptExecutor) driver; 
 	js.ExecuteScript(Script,Arguments);
 
 Script – This is the JavaScript that needs to execute.
 Arguments – It is the arguments to the script. It's optional.
+
 	var js = (IJavaScriptExecutor) driver;
     js.ExecuteScript("arguments[0].setAttribute('value', arguments[1])", ClColor, "#FF0000");
 
