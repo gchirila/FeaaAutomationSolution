@@ -135,9 +135,7 @@ Clarification :)
 	//input[@value='Sign in'] 
 
 **tagname[@attribute='attributeValue']**
-(input, button, label) | (id, name, class name) 
-	
-	
+
 **XPath methods**
 
 **1. Following** - all following elements of the current node  
