@@ -1,5 +1,7 @@
-﻿using System.CodeDom;
+﻿using System;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using ExpectedConditions = SeleniumExtras.WaitHelpers.ExpectedConditions;
 
 namespace AutomationSolution.PageObjects
 {
@@ -10,6 +12,8 @@ namespace AutomationSolution.PageObjects
         public LoginPage(IWebDriver browser)
         {
             driver = browser;
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
+            wait.Until(ExpectedConditions.ElementIsVisible(login));
         }
 
         private By email = By.CssSelector("input[data-test='email']");

@@ -16,11 +16,10 @@ namespace AutomationSolution
         public void TestInitialize()
         {
             driver = new ChromeDriver();
-            loginPage = new LoginPage(driver);
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl("http://a.testaddressbook.com/");
             driver.FindElement(By.Id("sign-in")).Click();
-            Thread.Sleep(1000);
+            loginPage = new LoginPage(driver);
         }
 
         [TestMethod]

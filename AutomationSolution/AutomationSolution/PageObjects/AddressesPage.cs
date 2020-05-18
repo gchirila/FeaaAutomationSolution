@@ -1,4 +1,8 @@
-﻿using OpenQA.Selenium;
+﻿using System;
+using AutomationSolution.PageObjects.AddAdressPage;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using ExpectedConditions = SeleniumExtras.WaitHelpers.ExpectedConditions;
 
 namespace AutomationSolution.PageObjects
 {
@@ -16,6 +20,8 @@ namespace AutomationSolution.PageObjects
 
         public AddAddressPage NavigateToAddAddressPage()
         {
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until(ExpectedConditions.ElementIsVisible(newAddress));
             BtnNewAddress.Click();
             return new AddAddressPage(driver);
         }

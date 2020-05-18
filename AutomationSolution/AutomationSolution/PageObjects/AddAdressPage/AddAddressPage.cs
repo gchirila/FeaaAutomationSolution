@@ -1,17 +1,22 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
+using AutomationSolution.PageObjects.AddAdressPage.InputData;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
+using ExpectedConditions = SeleniumExtras.WaitHelpers.ExpectedConditions;
 
-namespace AutomationSolution.PageObjects
+namespace AutomationSolution.PageObjects.AddAdressPage
 {
     public class AddAddressPage
     {
         private IWebDriver driver;
+        private WebDriverWait wait;
 
         public AddAddressPage(IWebDriver browser)
         {
             driver = browser;
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
         }
 
         private By firstName = By.Name("address[first_name]");
@@ -41,19 +46,21 @@ namespace AutomationSolution.PageObjects
         private By createAddress = By.CssSelector("[data-test=submit]");
         private IWebElement BtnCreateAddress => driver.FindElement(createAddress);
 
-        public void CreateAddress()
+        public AddresssDetailsPage CreateAddress(AddAddressBO addAddressBo)
         {
-            TxtFirstName.SendKeys("test george");
-            TxtLastName.SendKeys("test george");
-            TxtAddress1.SendKeys("test george");
-            TxtCity.SendKeys("test george");
+            wait.Until(ExpectedConditions.ElementIsVisible(firstName));
+            TxtFirstName.SendKeys(addAddressBo.FirstName);
+            TxtLastName.SendKeys(addAddressBo.LastName);
+            TxtAddress1.SendKeys(addAddressBo.Address1);
+            TxtCity.SendKeys(addAddressBo.City);
             var selectState = new SelectElement(DdlState);
-            selectState.SelectByText("District of Columbia");
-            TxtZipCode.SendKeys("test george");
-            LstCountry[1].Click();
+            selectState.SelectByText(addAddressBo.State);
+            TxtZipCode.SendKeys(addAddressBo.ZipCode);
+            LstCountry[addAddressBo.Country].Click();
             var js = (IJavaScriptExecutor) driver;
-            js.ExecuteScript("arguments[0].setAttribute('value', arguments[1])", ClColor, "#FF0000");
-            //BtnCreateAddress.Click();
+            js.ExecuteScript("arguments[0].setAttribute('value', arguments[1])", ClColor, addAddressBo.Color);
+            BtnCreateAddress.Click();
+            return new AddresssDetailsPage(driver);
         }
 
     }

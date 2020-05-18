@@ -14,8 +14,6 @@ namespace AutomationSolution.PageObjects
             driver = browser;
         }
 
-
-
         private By addresses = By.CssSelector("[data-test=addresses]");
         private IWebElement BtnAddresses => driver.FindElement(addresses);
 

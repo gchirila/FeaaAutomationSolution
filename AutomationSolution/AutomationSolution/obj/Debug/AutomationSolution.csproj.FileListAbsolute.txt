@@ -16,3 +16,4 @@ C:\Users\gchirila\Documents\GitHub\FeaaAutomationSolution\AutomationSolution\Aut
 C:\Users\gchirila\Documents\GitHub\FeaaAutomationSolution\AutomationSolution\AutomationSolution\obj\Debug\AutomationSolution.pdb
 C:\Users\gchirila\Documents\GitHub\FeaaAutomationSolution\AutomationSolution\AutomationSolution\bin\Debug\WebDriver.Support.dll
 C:\Users\gchirila\Documents\GitHub\FeaaAutomationSolution\AutomationSolution\AutomationSolution\bin\Debug\WebDriver.Support.xml
+C:\Users\gchirila\Documents\GitHub\FeaaAutomationSolution\AutomationSolution\AutomationSolution\bin\Debug\SeleniumExtras.WaitHelpers.dll
