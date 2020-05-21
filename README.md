@@ -563,7 +563,7 @@ In order to finish the automated tests, we need to make an assertion.
 
 ### **Session 5: Let’s continue to refactor our project**
 
-**Scope:** This session scope was to finish the test, to refactor our code and replace Thread.Sleep with efficient waits. 
+**Scope:** This session scope was to finish the test, refactor our code and replace Thread.Sleep with efficient waits. 
 
 For this test, will be the success message shown in the address details page, after saving it. Another page object will be created: AddressDetailsPage.cs
 
