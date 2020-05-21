@@ -560,3 +560,172 @@ Arguments – It is the arguments to the script. It's optional.
     js.ExecuteScript("arguments[0].setAttribute('value', arguments[1])", ClColor, "#FF0000");
 
 In order to finish the automated tests, we need to make an assertion.
+
+### **Session 5: Let’s continue to refactor our project**
+
+**Scope:** This session scope was to finish the test, to refactor our code and replace Thread.Sleep with efficient waits. 
+
+For this test, will be the success message shown in the address details page, after saving it. Another page object will be created: AddressDetailsPage.cs
+
+```csharp
+    public class AddressDetailsPage
+    {
+        private IWebDriver driver;
+
+        public AddressDetailsPage(IWebDriver browser)
+        {
+            driver = browser;
+        }
+
+        public IWebElement LblSuccess => driver.FindElement(By.CssSelector("[data-test='notice']"));
+    }
+```
+
+At this point, our automated tests will look like this:
+
+```csharp
+    [TestClass]
+    public class AddAddressTests
+    {
+        private IWebDriver driver;
+        private AddAdressPage addAddressPage;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            driver = new ChromeDriver();
+            var loginPage = new LoginPage(driver);
+            driver.Manage().Window.Maximize();
+            driver.Navigate().GoToUrl("http://a.testaddressbook.com/");
+            loginPage.NavigateToLoginPage();
+            Thread.Sleep(1000);
+            loginPage.LoginApplication("test@test.test", "test");
+
+            var homePage = new HomePage(driver);
+            Thread.Sleep(1000);
+            var addressesPage = homePage.NavigateToAddressesPage();
+            Thread.Sleep(1000);
+            addAddressPage = addressesPage.NavigateToAddAddressPage();
+            Thread.Sleep(1000);
+        }
+
+        [TestMethod]
+        public void Go_To_AddAddressPage()
+        {
+            addAddressPage.AddAddress();
+            var addressDetails = new AddressDetailsPage(driver);
+            var message = "Address was successfully created.";
+            Assert.AreEqual(message, addressDetails.LblSuccess.Text);
+        }
+
+
+        [TestCleanup]
+        public void CleanUp()
+        {
+            driver.Quit();
+        }
+    }
+```
+
+
+Another thing we need to change is the way we navigate from adding address page to address details page. For this, since after saving the address, we navigate to the AddressDetails page,
+we need to change the CreateAddress method to return AddressDetails class:
+
+```csharp
+        public AddresssDetailsPage CreateAddress(AddAddressBO addAddressB)
+        {
+            TxtFirstName.SendKeys("test");
+            TxtLastName.SendKeys("test");
+            TxtAddress1.SendKeys("test");
+            ...
+        }
+```
+
+Then, called it in the AddAddressTests.cs:
+
+```csharp
+            var addressDetailsPage = addAddressPage.CreateAddress(s);
+```
+
+To parametrize AddAddress method in an efficient way, we can create a business object class called AddAddressBO.cs which will contain the objects needed in the process of adding an address: 
+
+```csharp
+    public class AddAddressBO
+    {
+        public string TxtFirstName = "test";
+        public string TxtLastName = "test";
+        public string TxtAddress1 = "test";
+        public string TxtCity = "test";
+        public string TxtState = "Hawaii";
+        public string TxtZipCode = "test";
+        public string TxtBirthdayDay = "05";
+        public string TxtBirthdayMonth = "03";
+        public string TxtBirthdayYear = "2000";
+        public string TxtColor = "#FF0000";
+    }
+```
+
+Then, use it in the AddAddress method as a parameter and to access his properties:
+
+```csharp
+        public void AddAddress(AddAddressBO address)
+        {
+            TxtFirstName.SendKeys(address.TxtFirstName);
+            TxtLastName.SendKeys(address.TxtLastName);
+              ... and so on
+        }
+```
+
+Now, we can move on to the **Wait Strategy** and how to use it.
+
+There are explicit and implicit waits in Selenium Web Driver. Waiting is having the automated task execution elapse a certain amount of time before continuing with the next step. 
+
+You should choose to use Explicit or Implicit Waits.
+
+**•	Thread.Sleep**
+
+In particular, this pattern of sleep is an example of explicit waits. So this isn’t actually a feature of Selenium WebDriver, it’s a common feature in most programming languages though.
+
+Thread.Sleep() does exactly what you think it does, it sleeps the thread.
+
+Example:
+
+```csharp
+            Thread.Sleep(2000);
+```
+
+Warning! Using Thread.Sleep() can leave to random failures (server is sometimes slow), you don't have full control of the test and the test could take longer than it should. It is a good practice to use other types of waits.
+
+**•	Implicit Wait**
+
+WebDriver will poll the DOM for a certain amount of time when trying to find an element or elements if they are not immediately available
+
+Example:
+
+```csharp
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
+```
+
+**•	Explicit Wait** - Wait for a certain condition to occur before proceeding further in the code
+
+In practice, we recommend that you use Web Driver Wait in combination with methods of the Expected Conditions class that reduce the wait. If the element appeared earlier than the time specified during Web Driver wait initialization, Selenium will not wait but will continue the test execution.
+
+Example 1:
+
+```csharp
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+            wait.Until(ExpectedConditions.ElementIsVisible(firstName));
+```
+
+Example 2:
+
+```csharp
+        public AddAdressPage(IWebDriver browser)
+        {
+            driver = browser;
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+            wait.Until(ExpectedConditions.ElementIsVisible(firstName));
+        }
+
+        private By firstName = By.Id("address_first_name");
+        private IWebElement TxtFirstName => driver.FindElement(firstName);
