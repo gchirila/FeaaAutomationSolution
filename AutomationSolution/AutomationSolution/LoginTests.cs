@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using AutomationSolution.Controls;
 using AutomationSolution.PageObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
@@ -17,18 +18,20 @@ namespace AutomationSolution
         {
             driver = new ChromeDriver();
             driver.Manage().Window.Maximize();
+            
             driver.Navigate().GoToUrl("http://a.testaddressbook.com/");
-            driver.FindElement(By.Id("sign-in")).Click();
+            var menuItem = new LoggedOutMenuItemControl(driver);
+            loginPage = menuItem.NavigateToLoginPage();
             loginPage = new LoginPage(driver);
         }
 
         [TestMethod]
         public void Login_CorrectEmail_CorrectPassword()
         {
-            loginPage.LoginApplication("asd@asd.asd", "asd");
+            var homePage = loginPage.LoginApplication("asd@asd.asd", "asd");
 
             var expectedResult = "asd@asd.asd";
-            var actualResult = driver.FindElement(By.CssSelector("span[data-test='current-user']")).Text;
+            var actualResult = homePage.loggedInMenuItemControl.UserEmail;
 
             Assert.AreEqual(expectedResult, actualResult);
         }
@@ -36,10 +39,10 @@ namespace AutomationSolution
         [TestMethod]
         public void Login_IncorrectEmail_CorrectPassword()
         {
-            loginPage.LoginApplication("asd12321414@asd12321.asd312", "asd");
+            var homePage = loginPage.LoginApplication("asd12321414@asd12321.asd312", "asd");
 
             var expectedResult = "Bad email or password.";
-            var actualResults = driver.FindElement(By.XPath("//div[contains(@class,'alert')]")).Text;
+            var actualResults = loginPage.IncorrectCredentialsMessage; 
 
             Assert.AreEqual(expectedResult, actualResults);
         }
@@ -50,7 +53,7 @@ namespace AutomationSolution
             loginPage.LoginApplication("asd@asd.asd", "asd1234");
 
             var expectedResult = "Bad email or password.";
-            var actualResults = driver.FindElement(By.XPath("//div[contains(@class,'alert')]")).Text;
+            var actualResults = loginPage.IncorrectCredentialsMessage;
 
             Assert.AreEqual(expectedResult, actualResults);
         }

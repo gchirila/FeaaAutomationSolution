@@ -46,7 +46,7 @@ namespace AutomationSolution.PageObjects.AddAdressPage
         private By createAddress = By.CssSelector("[data-test=submit]");
         private IWebElement BtnCreateAddress => driver.FindElement(createAddress);
 
-        public AddresssDetailsPage CreateAddress(AddAddressBO addAddressBo)
+        public AddressDetailsPage CreateAddress(AddAddressBO addAddressBo)
         {
             wait.Until(ExpectedConditions.ElementIsVisible(firstName));
             TxtFirstName.SendKeys(addAddressBo.FirstName);
@@ -60,7 +60,7 @@ namespace AutomationSolution.PageObjects.AddAdressPage
             var js = (IJavaScriptExecutor) driver;
             js.ExecuteScript("arguments[0].setAttribute('value', arguments[1])", ClColor, addAddressBo.Color);
             BtnCreateAddress.Click();
-            return new AddresssDetailsPage(driver);
+            return new AddressDetailsPage(driver);
         }
 
     }

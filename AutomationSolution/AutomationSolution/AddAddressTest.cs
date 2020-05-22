@@ -14,6 +14,8 @@ namespace AutomationSolution
     {
         private IWebDriver driver;
         private AddAddressPage addAddressPage;
+        private AddressDetailsPage addressDetailsPage;
+        private AddAddressBO addAddressBo = new AddAddressBO();
 
         [TestInitialize]
         public void TestInitialize()
@@ -24,25 +26,34 @@ namespace AutomationSolution
             driver.FindElement(By.Id("sign-in")).Click();
             var loginPage = new LoginPage(driver);
             var homePage = loginPage.LoginApplication("asd@asd.asd", "asd");
-            var addressesPage = homePage.NavigateToAddressesPage();
+            var addressesPage = homePage.loggedInMenuItemControl.NavigateToAddressesPage();
             addAddressPage = addressesPage.NavigateToAddAddressPage();
         }
 
         [TestMethod]
         public void Should_Add_Address_Successfully()
         {
-            var addAddressBo = new AddAddressBO
-            {
-                LastName = "George Changed"
-            };
-            var addressDetailsPage = addAddressPage.CreateAddress(addAddressBo);
+            addressDetailsPage = addAddressPage.CreateAddress(addAddressBo);
             Assert.AreEqual("Address was successfully created.", addressDetailsPage.SuccessfullyCreatedText);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            driver.Quit();
+            try
+            {
+                var addreessPage = addressDetailsPage.NavigateToAddressesPage();
+                addreessPage.DeleteAddress(addAddressBo);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                driver.Quit();
+            }
         }
     }
 }

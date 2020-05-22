@@ -5,7 +5,7 @@ using ExpectedConditions = SeleniumExtras.WaitHelpers.ExpectedConditions;
 
 namespace AutomationSolution.PageObjects
 {
-    class LoginPage
+    public class LoginPage
     {
         private IWebDriver driver;
 
@@ -25,6 +25,9 @@ namespace AutomationSolution.PageObjects
         private By login => By.XPath("//input[@value='Sign in']");
         private IWebElement BtnLogin => driver.FindElement(login);
 
+        private By incorrectCredentials = By.XPath("//div[contains(@class,'alert')]");
+        private IWebElement LblErrorMessage => driver.FindElement(incorrectCredentials);
+
         public HomePage LoginApplication(string email, string password)
         {
             TxtEmail.SendKeys(email);
@@ -32,5 +35,7 @@ namespace AutomationSolution.PageObjects
             BtnLogin.Click();
             return new HomePage(driver);
         }
+
+        public string IncorrectCredentialsMessage => LblErrorMessage.Text;
     }
 }

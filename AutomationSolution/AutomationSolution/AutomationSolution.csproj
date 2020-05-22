@@ -60,11 +60,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddAddressTest.cs" />
+    <Compile Include="Controls\MenuItemControl.cs" />
+    <Compile Include="DestroyAddressTests.cs" />
     <Compile Include="LoginTests.cs" />
     <Compile Include="PageObjects\AddAdressPage\AddAddressPage.cs" />
     <Compile Include="PageObjects\AddAdressPage\InputData\AddAddressBO.cs" />
     <Compile Include="PageObjects\AddressesPage.cs" />
-    <Compile Include="PageObjects\AddresssDetailsPage.cs" />
+    <Compile Include="PageObjects\AddressDetailsPage.cs" />
     <Compile Include="PageObjects\HomePage.cs" />
     <Compile Include="PageObjects\LoginPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
