@@ -729,3 +729,325 @@ Example 2:
 
         private By firstName = By.Id("address_first_name");
         private IWebElement TxtFirstName => driver.FindElement(firstName);
+		
+### **Session 6**
+**Scope:** This session scope is to handle grids and menu in our automation script
+At this point, we have added an address, but the application has also implemented the delete functionality. This can be done in the Addresses page.
+Within this page we have a grid that contains a list of addresses(table row > tr) and each address contains it's details(table data > td) and the posibility to view/edit/delete it.
+After clicking delete button, an alert appears. Selenium Webdriver manipulate(accept/dismiss/get text) the alert and accept it in our case:
+
+```csharp
+		driver.SwitchTo().Alert().Accept();
+```
+
+Selenium Webdriver gives us the posibility to chain elements and create a structure father child:
+```csharp
+		driver.FindElement("father").FindElement(By.CssSelector("child")).FindElement(By.CssSelector("grandchild"));
+```
+
+We need to iterate the list to identify the address that we have added and to delete it. There are multiple ways to do it, but the preferred one is documented below: 
+```csharp
+		private By addresses = By.CssSelector("tbody tr");
+        private IList<IWebElement> LstAddresses => driver.FindElements(addresses);
+		
+		private  By delete = By.CssSelector("[data-method='delete']");
+        private IWebElement BtnDeleteV2 => LstAddresses.FirstOrDefault(element => element.Text.Contains("**hotel name**"))?
+                                                        .FindElement(delete);
+														
+		public void DeleteAddress()
+        {
+            BtnDeleteV2.Click();
+            driver.SwitchTo().Alert().Accept();
+        }
+```
+
+The other ones would be:
+```csharp
+		private  By delete = By.CssSelector("[data-method='delete']");
+		//**not a good idea because it would always take the first from the list
+        private IWebElement BtnDelete => LstAddresses[0].FindElement(delete);
+
+
+		public void DeleteAddressV1()
+        {
+            BtnDelete.Click();
+            driver.SwitchTo().Alert().Accept();
+        }
+		
+        public void DeleteAddressV2(AddAddressBO addAddressBo)
+        {
+            foreach (var address in LstAddresses)
+            {
+                if (address.Text.Contains(addAddressBo.TxtFirstName))
+                {
+                    address.FindElement(delete).Click();
+                    driver.SwitchTo().Alert().Accept();
+                    break;
+                }
+            }
+        }    
+```
+
+
+And the methods could be called in test classes:
+```csharp
+
+		[TestClass]
+	    public class AddressesTest
+	    {
+	        private IWebDriver driver;
+	        private AddressesPage addressesPage;
+	
+	        [TestInitialize]
+	        public void SetUp()
+	        {
+	            driver = new ChromeDriver();
+	            
+	            driver.Manage().Window.Maximize();
+	            driver.Navigate().GoToUrl("http://a.testaddressbook.com/");
+	            var loginPage = new LoginPage(driver);
+	            loginPage.menuItemControl.NavigateToLoginPage();
+	            loginPage.LoginApplication("test@test.test", "test");
+	
+	            var homePage = new HomePage(driver);
+	            //Implicit Wait
+	            //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
+	
+	            addressesPage = homePage.NavigateToAddressesPage();
+	            var addAddressPage = addressesPage.NavigateToAddAddressPage();
+	            addAddressPage.AddAddress(new AddAddressBO());
+	            var addressDetails =  addAddressPage.NavigateToAddressDetailsPage();
+	            addressesPage = addressDetails.NavigateToAddressesPage();
+	        }
+	
+	        [TestMethod]
+	        public void Should_Delete_Address_V1()
+	        {
+	            addressesPage.DeleteAddress1();
+	            string notice = "Address was successfully destroyed.";
+	            Assert.AreEqual(notice, addressesPage.NoticeText);
+	        }
+	
+	        [TestMethod]
+	        public void Should_Delete_Address_V2()
+	        {
+	            addressesPage.DeleteAddressV2(new AddAddressBO());
+	            string notice = "Address was successfully destroyed.";
+	            Assert.AreEqual(notice, addressesPage.NoticeText);
+	        }
+	
+	        [TestMethod]
+	        public void Should_Delete_Address_V3()
+	        {
+	            addressesPage.DeleteAddressV3();
+	            string notice = "Address was successfully destroyed.";
+	            Assert.AreEqual(notice, addressesPage.NoticeText);
+	        }
+	
+	        [TestCleanup]
+	        public void CleanUp()
+	        {
+	            driver.Quit();
+	        }
+			
+```
+
+Now let's hanle the menu.
+The menu is present in all the app pages and we need to create a single repository where the menu elements can be stored.
+This is a shared component and we need to call it in all of our page objects.
+The first step is to create a class named MenuItemControl. This class will containt all menu elements.
+
+```csharp
+
+		public class MenuItemControl
+	    {
+	        public IWebDriver driver;
+			
+			public MenuItemControl(IWebDriver browser)
+	        {
+	            driver = browser;
+	        }
+			
+			private By home = By.CssSelector("");
+	        private IWebElement BtnHome => driver.FindElement(home);
+	    
+	        private By signIn = By.Id("sign-in");
+	        private IWebElement BtnSignIn => driver.FindElement(signIn);
+	
+	
+	        private By addresses = By.CssSelector("");
+	        private IWebElement BtnAddresses => driver.FindElement(addresses);
+	
+	        private By signOut = By.CssSelector("");
+	        private IWebElement BtnSignOut => driver.FindElement(signOut);
+	
+	        private By useremail = By.CssSelector("span[data-test='current-user']");
+	        private IWebElement LblUserEmail=>driver.FindElement(useremail);
+		}
+		
+```
+
+The application has 2 contexts, but this menu cannot be used from both perspectives: logged out and logged in.
+Let's identify the elements used in this contextes:
+			- logged out: Home, Sign in
+			- logged in: Home, Addresses, Sign out and User email
+The common webelement for both contextes is Home.
+Now that we have identified what we have, we need to create 2 classes for out contextes: LoggedOutMenuItemControl and LoggedInMenuItemControl that will inhirit the MenuItemControlClass.
+And we need to move the elements to the according classes. We also need to move the navigation logic to this classes.
+
+```csharp
+
+		public class MenuItemControl
+	    {
+	        public IWebDriver driver;
+	
+	        public MenuItemControl(IWebDriver browser)
+	        {
+	            driver = browser;
+	        }
+	
+	        private By home = By.CssSelector("");
+	        private IWebElement BtnHome => driver.FindElement(home);
+	    }
+		
+```
+
+```csharp
+
+		public class LoggedOutMenuItemControl: MenuItemControl
+	    {
+	
+	        private By signIn = By.Id("sign-in");
+	        private IWebElement BtnSignIn => driver.FindElement(signIn);
+	
+	        public LoggedOutMenuItemControl(IWebDriver browser) : base(browser)
+	        {
+	        }
+	
+	        public LoginPage NavigateToLoginPage()
+	        {
+	            BtnSignIn.Click();
+	            return new LoginPage(driver);
+	        }
+	    }
+		
+```
+
+```csharp
+
+		public class LoggedInMenuItemControl: MenuItemControl
+	    {
+	        private By addresses = By.CssSelector("");
+	        private IWebElement BtnAddresses => driver.FindElement(addresses);
+	
+	        private By signOut = By.CssSelector("");
+	        private IWebElement BtnSignOut => driver.FindElement(signOut);
+	
+	        private By useremail = By.CssSelector("span[data-test='current-user']");
+	        private IWebElement LblUserEmail=>driver.FindElement(useremail);
+	
+	        public LoggedInMenuItemControl(IWebDriver browser) : base(browser)
+	        {
+	        }
+	
+	        public string UserEmailText => LblUserEmail.Text;
+	    }
+		
+```
+
+Let's used in the LoginPage.cs and LoginTests.cs
+
+```csharp
+
+		 public class LoginPage
+	     {
+	        private IWebDriver driver;
+			
+			//**reference the menu item control**
+	        public LoggedOutMenuItemControl menuItemControl => new LoggedOutMenuItemControl(driver);
+	
+	        public LoginPage(IWebDriver browser)
+	        {
+	            driver = browser;
+	        }        
+	
+	        private By email = By.Id("session_email");
+	        private IWebElement TxtUsername()
+	        {
+	            return driver.FindElement(email);
+	        }
+	
+	        private IWebElement TxtPassword()
+	        {
+	            return driver.FindElement(By.Id("session_password"));
+	        }
+	
+	        private IWebElement BtnLogin()
+	        {
+	            return driver.FindElement(By.Name("commit"));
+	        }
+	        
+	        public void LoginApplication(string username, string password)
+	        {
+	            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+	            wait.Until(ExpectedConditions.ElementExists(email));
+	            TxtUsername().SendKeys(username);
+	            TxtPassword().SendKeys(password);
+	            BtnLogin().Click();
+	        }
+	    }
+		
+```
+
+```csharp
+
+		[TestClass]
+	    public class LoginTests
+	    {
+	        private IWebDriver driver;
+	        private LoginPage loginPage;
+	
+	
+	        [TestInitialize]
+	        public void SetUp()
+	        {
+	            driver = new ChromeDriver();
+	            loginPage = new LoginPage(driver);
+	            driver.Manage().Window.Maximize();
+	            driver.Navigate().GoToUrl("http://a.testaddressbook.com/");
+				//**use in the test**
+	            loginPage.menuItemControl.NavigateToLoginPage();
+	        }
+	
+	        [TestMethod]
+	        public void Login_CorrectEmail_CorrectPassword()
+	        {
+	            loginPage.LoginApplication("test@test.test", "test");
+	
+	            var expectedResult = "test@test.test";
+	            var homePage = new HomePage(driver);
+	
+	            Assert.AreEqual(expectedResult, homePage.menuItemControl.UserEmailText);
+	        }
+	
+	        [TestMethod]
+	        public void Login_IncorrectEmail_IncorrectPassword()
+	        {
+	            loginPage.LoginApplication("weor@hdsh.asdhg", "asd");
+	
+	            var expectedResult = "Bad email or password.";
+	            var actualResults = driver.FindElement(By.XPath("//div[starts-with(@class, 'alert')]")).Text;
+	
+	            Assert.AreEqual(expectedResult, actualResults);
+	        }
+	
+	        [TestCleanup]
+	        public void CleanUp()
+	        {
+	            driver.Quit();
+	        }
+	    }
+		
+```
+
+As said before, this can be put in every class, depending on the context.
